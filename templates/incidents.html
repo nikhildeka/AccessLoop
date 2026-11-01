@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Management | AccessLoop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fa;
+            margin: 0;
+            padding: 30px;
+            color: #222;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+        h1, h2 { color: #172554; }
+        input, select, textarea {
+            width: 100%;
+            padding: 11px;
+            margin: 8px 0 16px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            box-sizing: border-box;
+        }
+        button, .back {
+            background: #2563eb;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .incident {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .status { font-weight: bold; }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #e0f2fe;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Incident Management</h1>
+    <p>Report equipment damage, missing accessories or other issues.</p>
+
+    <a class="back" href="{{ url_for('auth.dashboard') }}">← Dashboard</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    {% if current_user.role == 'student' %}
+    <div class="card">
+        <h2>Report an Incident</h2>
+
+        {% if bookings %}
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>Select Booking</label>
+            <select name="booking_id" required>
+                {% for booking in bookings %}
+                <option value="{{ booking.id }}">
+                    {{ booking.resource.name }} — Booking #{{ booking.id }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label>Incident Category</label>
+            <select name="category" required>
+                <option value="Equipment Damage">Equipment Damage</option>
+                <option value="Missing Accessories">Missing Accessories</option>
+                <option value="Technical Issue">Technical Issue</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>Description</label>
+            <textarea name="description" rows="4"
+                      placeholder="Describe what happened..." required></textarea>
+
+            <button type="submit">Submit Report</button>
+        </form>
+        {% else %}
+        <p>You need an active or completed booking to report an incident.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h2>Incident Reports</h2>
+
+        {% for incident in reports %}
+        <div class="incident">
+            <h3>{{ incident.category }}</h3>
+            <p>{{ incident.description }}</p>
+            <p>Resource ID: #{{ incident.resource_id }}</p>
+            <p class="status">Status: {{ incident.status }}</p>
+            <small>Reported: {{ incident.created_at }}</small>
+
+            {% if current_user.role in ['owner', 'manager', 'admin']
+                  and incident.status != 'RESOLVED' %}
+            <form method="POST"
+                action="{{ url_for('incidents.resolve_incident', incident_id=incident.id) }}">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <button type="submit">Mark as Resolved</button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+        <p>No incident reports yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+</body>
+</html>

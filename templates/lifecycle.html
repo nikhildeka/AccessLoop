@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Lifecycle | AccessLoop</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        header {
+            background: #155e75;
+            color: white;
+            padding: 20px 5%;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        }
+
+        input, select, textarea {
+            display: block;
+            width: 100%;
+            padding: 11px;
+            margin: 10px 0 17px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #0e7490;
+            color: white;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .status {
+            color: #0e7490;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>AccessLoop | Equipment Control Centre</h2>
+    <p>Track equipment handovers and returns.</p>
+</header>
+
+<div class="container">
+
+    <h1>Equipment Lifecycle Management</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    {% for booking in bookings %}
+
+    <div class="card">
+
+        <h2>{{ booking.resource.name }}</h2>
+
+        <p><strong>Student:</strong> {{ booking.user.full_name }}</p>
+
+        <p><strong>Purpose:</strong> {{ booking.purpose }}</p>
+
+        <p class="status">Status: {{ booking.status }}</p>
+
+        {% if booking.status == "APPROVED" %}
+
+            <h3>Record Equipment Handover</h3>
+
+            <form method="POST"
+                action="{{ url_for('lifecycle.update_lifecycle', booking_id=booking.id) }}">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="handover">
+
+                <label>Initial Equipment Condition</label>
+
+                <select name="condition" required>
+                    <option value="EXCELLENT">Excellent</option>
+                    <option value="GOOD" selected>Good</option>
+                    <option value="FAIR">Fair</option>
+                    <option value="DAMAGED">Damaged</option>
+                    <option value="MISSING_COMPONENTS">Missing Components</option>
+                </select>
+
+                <label>Accessories handed over</label>
+                <input name="accessories"
+                    placeholder="Camera bag, charger, battery...">
+
+                <label>Handover notes</label>
+                <textarea name="description"
+                    placeholder="Describe the initial condition..."></textarea>
+
+                <button type="submit">Confirm Equipment Handover</button>
+
+            </form>
+
+        {% elif booking.status == "CHECKED_IN" %}
+
+            <h3>Record Equipment Return</h3>
+
+            <p>Collected at: {{ booking.checked_in_at }}</p>
+
+            <form method="POST"
+                action="{{ url_for('lifecycle.update_lifecycle', booking_id=booking.id) }}">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="return">
+
+                <label>Final Equipment Condition</label>
+
+                <select name="condition" required>
+                    <option value="EXCELLENT">Excellent</option>
+                    <option value="GOOD" selected>Good</option>
+                    <option value="FAIR">Fair</option>
+                    <option value="DAMAGED">Damaged</option>
+                    <option value="MISSING_COMPONENTS">Missing Components</option>
+                </select>
+
+                <label>Accessories returned</label>
+                <input name="accessories"
+                    placeholder="Camera bag, charger, battery...">
+
+                <label>Return notes</label>
+                <textarea name="description"
+                    placeholder="Describe the returned condition..."></textarea>
+
+                <button type="submit">Confirm Equipment Return</button>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+    {% else %}
+
+    <div class="card">
+        <h3>No active equipment transactions.</h3>
+        <p>Approved bookings will appear here.</p>
+    </div>
+
+    {% endfor %}
+
+    <a href="{{ url_for('auth.dashboard') }}">Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>

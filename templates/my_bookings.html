@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Bookings | AccessLoop</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            padding: 30px;
+        }
+
+        .booking {
+            background: white;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 750px;
+            border-radius: 10px;
+        }
+
+        .status {
+            color: #0e7490;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>My Bookings</h1>
+
+{% for booking in bookings %}
+
+<div class="booking">
+
+    <h3>{{ booking.resource.name }}</h3>
+
+    <p><strong>Purpose:</strong> {{ booking.purpose }}</p>
+
+    <p><strong>Start:</strong> {{ booking.start_time }}</p>
+
+    <p><strong>End:</strong> {{ booking.end_time }}</p>
+
+    <p class="status">
+        Status: {{ booking.status }}
+    </p>
+
+    {% if booking.decision_reason %}
+        <p>Decision: {{ booking.decision_reason }}</p>
+    {% endif %}
+
+</div>
+
+{% else %}
+
+<p>You haven't made any booking requests yet.</p>
+
+{% endfor %}
+
+<a href="{{ url_for('resources.resource_list') }}">Explore Resources</a>
+
+</body>
+</html>

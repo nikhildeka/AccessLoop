@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Resource | AccessLoop</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            padding: 30px;
+        }
+
+        .box {
+            max-width: 550px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #0e7490;
+            color: white;
+            padding: 13px 22px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>Request Resource</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div style="
+                padding: 12px;
+                margin: 12px 0;
+                background: #fee2e2;
+                color: #991b1b;
+                border-radius: 6px;
+            ">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <h3>{{ resource.name }}</h3>
+
+    <p>Location: {{ resource.location }}</p>
+
+    <p>Maximum duration: {{ resource.max_booking_hours }} hours</p>
+
+    <form method="POST">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>Start Date and Time</label>
+        <input type="datetime-local" name="start_time" required>
+
+        <label>End Date and Time</label>
+        <input type="datetime-local" name="end_time" required>
+
+        <label>Purpose of Request</label>
+        <textarea name="purpose" rows="4"
+                  maxlength="500" required
+                  placeholder="Explain why you need this resource..."></textarea>
+
+        <button type="submit">Submit Booking Request</button>
+
+    </form>
+
+    <br><br>
+
+    <a href="{{ url_for('resources.resource_list') }}">
+        Back to Resources
+    </a>
+
+</div>
+
+</body>
+</html>

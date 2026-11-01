@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AccessLoop Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #155e75;
+            color: white;
+            padding: 22px 40px;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 50px auto;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #cffafe;
+            color: #155e75;
+            padding: 7px 15px;
+            border-radius: 20px;
+        }
+
+        button {
+            background: #0e7490;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>AccessLoop</h2>
+    <p>Discover. Request. Verify. Use. Return.</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Welcome, {{ current_user.full_name }}!</h1>
+
+        <p>Your campus resource-sharing dashboard.</p>
+
+        <span class="badge">
+            {{ current_user.role|title }}
+        </span>
+
+        <hr>
+
+        <h3>Account Information</h3>
+
+        <p><strong>Name:</strong> {{ current_user.full_name }}</p>
+
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+
+        <p><strong>Role:</strong> {{ current_user.role|title }}</p>
+
+        <p><strong>Institution:</strong>
+            {{ current_user.institution.name if current_user.institution else "Not assigned" }}
+        </p>
+
+        <p><strong>Verification:</strong>
+            {{ "Verified" if current_user.is_verified else "Pending" }}
+        </p>
+
+        <br>
+
+        <br>
+
+        <a href="{{ url_for('resources.resource_list') }}">
+            <button type="button">Explore Campus Resources</button>
+        </a>
+
+        <br><br>
+
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <button type="submit">Logout</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

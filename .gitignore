@@ -1,0 +1,24 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environments
+.venv/
+venv/
+
+# Database and private data
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Testing and editor files
+.pytest_cache/
+.vscode/
+.DS_Store

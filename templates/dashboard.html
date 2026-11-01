@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccessLoop Dashboard</title>
+
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+
+    header {
+        background: #155e75;
+        color: white;
+        padding: 22px 40px;
+    }
+
+    header h2 {
+        margin: 0;
+    }
+
+    .container {
+        max-width: 950px;
+        margin: 50px auto;
+        padding: 30px;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .badge {
+        display: inline-block;
+        background: #cffafe;
+        color: #155e75;
+        padding: 7px 15px;
+        border-radius: 20px;
+    }
+
+    .dashboard-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 300px));
+        gap: 18px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .dashboard-action {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 58px;
+        padding: 14px 20px;
+        background: #117c96;
+        color: white;
+        border-radius: 9px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        transition: 0.2s;
+    }
+
+    .dashboard-action:hover {
+        background: #075c70;
+        transform: translateY(-2px);
+    }
+
+    .logout-button {
+        background: #0e7490;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        .dashboard-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+</head>
+
+<body>
+
+<header>
+    <h2>AccessLoop</h2>
+    <p>Discover. Request. Verify. Use. Return.</p>
+</header>
+
+<div class="container">
+    <div class="card">
+
+    <h1>Welcome, {{ current_user.full_name }}!</h1>
+
+    <p>Your campus resource-sharing dashboard.</p>
+
+    <span class="badge">
+        {{ current_user.role|title }}
+    </span>
+
+    <hr>
+
+    <h3>Account Information</h3>
+
+    <p><strong>Name:</strong> {{ current_user.full_name }}</p>
+
+    <p><strong>Email:</strong> {{ current_user.email }}</p>
+
+    <p><strong>Role:</strong> {{ current_user.role|title }}</p>
+
+    <p><strong>Institution:</strong>
+        {{ current_user.institution.name if current_user.institution else "Not assigned" }}
+    </p>
+
+    <p><strong>Verification:</strong>
+        {{ "Verified" if current_user.is_verified else "Pending" }}
+    </p>
+
+    <div class="dashboard-actions">
+
+        <a href="/" class="dashboard-action">
+            ← Home
+        </a>
+
+        {% if current_user.role in ['owner', 'manager', 'admin'] %}
+
+            <a href="/owner/lifecycle" class="dashboard-action">
+                Equipment Lifecycle
+            </a>
+
+            <a href="{{ url_for('approvals.pending_requests') }}" class="dashboard-action">
+                Manage Booking Requests
+            </a>
+
+            <a href="{{ url_for('lifecycle.lifecycle_dashboard') }}" class="dashboard-action">
+                Equipment Check-in / Check-out
+            </a>
+
+        {% endif %}
+
+        {% if current_user.role == 'student' %}
+
+            <a href="{{ url_for('resources.resources_page') }}" class="dashboard-action">
+                Discover Resources
+            </a>
+
+            <a href="{{ url_for('bookings.my_bookings') }}" class="dashboard-action">
+                My Bookings
+            </a>
+
+            <a href="{{ url_for('incidents.incidents_page') }}" class="dashboard-action">
+                Report an Incident
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    <form action="{{ url_for('auth.logout') }}" method="POST">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <button type="submit" class="logout-button">
+            Logout
+        </button>
+
+    </form>
+
+</div>
+
+</div>
+
+</body>
+</html>

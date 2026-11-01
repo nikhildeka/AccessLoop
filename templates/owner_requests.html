@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Approvals | AccessLoop</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        header {
+            background: #155e75;
+            color: white;
+            padding: 22px 5%;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        .booking {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        }
+
+        .pending {
+            color: #92400e;
+            background: #fef3c7;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .approve { background: #15803d; }
+        .reject { background: #b91c1c; }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>AccessLoop | Owner Control Centre</h2>
+    <p>Review and manage resource booking requests.</p>
+</header>
+
+<div class="container">
+
+    <h1>Booking Requests</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    {% for booking in bookings %}
+
+    <div class="booking">
+
+        <h2>{{ booking.resource.name }}</h2>
+
+        <span class="pending">PENDING APPROVAL</span>
+
+        <p><strong>Requested by:</strong> {{ booking.user.full_name }}</p>
+
+        <p><strong>Email:</strong> {{ booking.user.email }}</p>
+
+        <p><strong>Purpose:</strong> {{ booking.purpose }}</p>
+
+        <p><strong>Start:</strong> {{ booking.start_time }}</p>
+
+        <p><strong>End:</strong> {{ booking.end_time }}</p>
+
+        <form method="POST"
+              action="{{ url_for('approvals.decide_booking', booking_id=booking.id) }}">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label>Decision reason</label>
+
+            <input type="text" name="reason"
+                   placeholder="Explain your decision..." required maxlength="500">
+
+            <button class="approve" name="decision"
+                    value="APPROVED">Approve</button>
+
+            <button class="reject" name="decision"
+                    value="REJECTED">Reject</button>
+
+        </form>
+
+    </div>
+
+    {% else %}
+
+    <div class="booking">
+        <h3>No pending booking requests.</h3>
+        <p>New student requests will appear here.</p>
+    </div>
+
+    {% endfor %}
+
+    <a href="{{ url_for('auth.dashboard') }}">Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>
